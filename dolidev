@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# shellcheck disable=SC2164
+
+up_dolidev() {
+  OPTS=$(getopt -o v:: --long version::,seed -- "$@")
+
+  local DOLIBARR_VERSION="14.0"
+  local SEED=0
+
+  eval set -- "$OPTS"
+
+  while true ; do
+    case "$1" in
+      -v|--version)
+        case "$2" in
+          "") shift 2 ;;
+          *) DOLIBARR_VERSION="$2" ; shift 2 ;;
+        esac ;;
+      --seed) SEED=1 ; shift ;;
+      --) shift ; break ;;
+      *) echo "Internal error!" ; exit 1 ;;
+    esac
+  done
+
+  install_dolibarr "$DOLIBARR_VERSION"
+  configure_dolibarr
+
+  echo "Starting the Dolibarr instance."
+  (source ./.env && cd docker && docker-compose up -d --build > /dev/null 2>&1)
+
+  if [[ "$SEED" -eq 1 ]]; then
+    echo "Seeding the database."
+    sleep 7
+    seed_dolibarr "$DOLIBARR_VERSION"
+  fi
+
+  echo ""
+  echo "The Dolibarr is available at: http://localhost"
+  echo "The PHPMyAdmin is available at http://localhost:8080"
+  echo ""
+  echo "You can login on Dolibarr using admin:password credentials"
+  echo "You can login on PHPMyAdmin using $DB_USERNAME:$DB_PASSWORD credentials"
+}
+
+down_dolidev() {
+  echo "Stopping the Dolibarr instance."
+
+  (cd docker && docker-compose down > /dev/null 2>&1)
+}
+
+rm_dolidev() {
+  echo "Removing the Dolibarr instance."
+
+  (cd docker && docker-compose down -v > /dev/null 2>&1)
+  rm -rf dolibarr
+}
+
+install_dolibarr() {
+  if [ -d dolibarr ]; then
+    echo "Updating existing Dolibarr instance to v$1"
+    (
+      cd dolibarr
+      git pull --rebase --autostash > /dev/null 2>&1
+      git checkout "$1" > /dev/null 2>&1
+    )
+  else
+    echo "Installing Dolibarr v$1 from https://github.com/Dolibarr/dolibarr.git into ./dolibarr"
+    git clone -b "$1" https://github.com/Dolibarr/dolibarr.git dolibarr > /dev/null 2>&1
+  fi
+
+  # Create documents folder if missing
+  mkdir -p dolibarr/documents
+}
+
+configure_dolibarr() {
+  cp dolibarr/htdocs/conf/conf.php.example dolibarr/htdocs/conf/conf.php
+
+  sed -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_db_name=''/dolibarr_main_db_name='$DB_DATABASE'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_db_user=''/dolibarr_main_db_user='$DB_USERNAME'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_db_pass=''/dolibarr_main_db_pass='$DB_PASSWORD'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
+}
+
+seed_dolibarr() {
+  # Run the seeders
+  docker exec --interactive docker_db_1 mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./dolibarr/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
+
+  # Set password as 'password' for all users
+  docker exec --interactive docker_db_1 mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
+}
+
+source .env
+
+if [ "$1" == "up" ]; then
+  up_dolidev "$@"
+elif [ "$1" == "down" ]; then
+  down_dolidev
+elif [ "$1" == "rm" ]; then
+  rm_dolidev
+fi

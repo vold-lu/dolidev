@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  db:
+    image: 'mariadb:${MARIADB_VERSION:-10.7.3-focal}'
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-root}'
+      MYSQL_DATABASE: '${DB_DATABASE:-dolibarr}'
+      MYSQL_USER: '${DB_USERNAME:-dolibarr}'
+      MYSQL_PASSWORD: '${DB_PASSWORD:-dolibarr}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - dolibarr
+    healthcheck:
+      test: [ 'CMD', 'mysqladmin', 'ping', '-p${DB_PASSWORD:-root}' ]
+      retries: 3
+      timeout: 5s
+
+  php:
+    build: php
+    volumes:
+      - ../dolibarr/htdocs:/var/www/html:rw
+      - ../dolibarr/documents:/var/documents:rw
+    networks:
+      - dolibarr
+
+  web:
+    build: nginx
+    ports:
+      - '${FORWARD_WEB_PORT:-80}:80'
+    volumes:
+      - ../dolibarr/htdocs:/var/www/html:rw
+    networks:
+      - dolibarr
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: db
+    ports:
+      - '${FORWARD_PMA_PORT:-8080}:80'
+    networks:
+      - dolibarr
+
+networks:
+  dolibarr:
+    driver: bridge
+
+volumes:
+  db:
+    driver: local
