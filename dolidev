@@ -38,7 +38,7 @@ up_dolidev() {
   fi
 
   echo ""
-  echo "The Dolibarr is available at: http://localhost"
+  echo "The Dolibarr is available at http://localhost"
   echo "The PHPMyAdmin is available at http://localhost:8080"
   echo ""
   echo "You can login on Dolibarr using admin:password credentials"
@@ -92,10 +92,10 @@ configure_dolibarr() {
 
 seed_dolibarr() {
   # Run the seeders
-  docker exec --interactive docker_db_1 mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./dolibarr/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
+  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./dolibarr/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
 
   # Set password as 'password' for all users
-  docker exec --interactive docker_db_1 mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
+  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
 }
 
 source .env
