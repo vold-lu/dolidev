@@ -5,7 +5,7 @@ set -euo pipefail
 # shellcheck disable=SC2164
 
 up_dolidev() {
-  OPTS=$(getopt -o v:: --long version::,seed -- "$@")
+  OPTS=$($GETOPT_CMD -o v:: --long version::,seed -- "$@")
 
   local DOLIBARR_VERSION="14.0"
   local SEED=0
@@ -55,6 +55,8 @@ rm_dolidev() {
   echo "Removing the Dolibarr instance."
 
   (cd docker && docker-compose down -v > /dev/null 2>&1)
+
+  echo "Wipping files on disk."
   rm -rf dolibarr
 }
 
@@ -78,14 +80,14 @@ install_dolibarr() {
 configure_dolibarr() {
   cp dolibarr/htdocs/conf/conf.php.example dolibarr/htdocs/conf/conf.php
 
-  sed -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_db_name=''/dolibarr_main_db_name='$DB_DATABASE'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_db_user=''/dolibarr_main_db_user='$DB_USERNAME'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_db_pass=''/dolibarr_main_db_pass='$DB_PASSWORD'/g" dolibarr/htdocs/conf/conf.php
-  sed -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_db_name=''/dolibarr_main_db_name='$DB_DATABASE'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_db_user=''/dolibarr_main_db_user='$DB_USERNAME'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_db_pass=''/dolibarr_main_db_pass='$DB_PASSWORD'/g" dolibarr/htdocs/conf/conf.php
+  sed -i "" "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
 }
 
 seed_dolibarr() {
@@ -97,6 +99,8 @@ seed_dolibarr() {
 }
 
 source .env
+
+GETOPT_CMD="${GETOPT_CMD:-getopt}"
 
 if [ "$1" == "up" ]; then
   up_dolidev "$@"
