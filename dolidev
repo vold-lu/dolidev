@@ -100,6 +100,8 @@ configure_dolibarr() {
   $SED_CMD -i "s/dolibarr_main_db_user=''/dolibarr_main_db_user='$DB_USERNAME'/g" dolibarr/htdocs/conf/conf.php
   $SED_CMD -i "s/dolibarr_main_db_pass=''/dolibarr_main_db_pass='$DB_PASSWORD'/g" dolibarr/htdocs/conf/conf.php
   $SED_CMD -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
+  $SED_CMD -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
+  $SED_CMD -i "s#//\$dolibarr_main_url_root_alt=#\$dolibarr_main_url_root_alt=#g" dolibarr/htdocs/conf/conf.php
 }
 
 seed_dolibarr() {
