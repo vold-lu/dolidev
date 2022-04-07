@@ -46,18 +46,30 @@ up_dolidev() {
 }
 
 down_dolidev() {
-  echo "Stopping the Dolibarr instance."
+  OPTS=$($GETOPT_CMD --long rm -- "$@")
 
-  (cd docker && docker-compose down > /dev/null 2>&1)
-}
+  local RM=0
 
-rm_dolidev() {
-  echo "Removing the Dolibarr instance."
+  eval set -- "$OPTS"
 
-  (cd docker && docker-compose down -v > /dev/null 2>&1)
+  while true ; do
+    case "$1" in
+      --rm) RM=1 ; shift ;;
+      --) shift ; break ;;
+      *) echo "Internal error!" ; exit 1 ;;
+    esac
+  done
 
-  echo "Wipping files on disk."
-  rm -rf dolibarr
+  if [ "$RM" -eq 0 ]; then
+    echo "Stopping the Dolibarr instance."
+    (cd docker && docker-compose down > /dev/null 2>&1)
+  else
+    echo "Removing the Dolibarr instance."
+    (cd docker && docker-compose down -v > /dev/null 2>&1)
+
+    echo "Wipping files on disk."
+    rm -rf dolibarr
+  fi
 }
 
 install_dolibarr() {
@@ -110,7 +122,5 @@ SED_CMD="${SED_CMD:-sed}"
 if [ "$1" == "up" ]; then
   up_dolidev "$@"
 elif [ "$1" == "down" ]; then
-  down_dolidev
-elif [ "$1" == "rm" ]; then
-  rm_dolidev
+  down_dolidev "$@"
 fi

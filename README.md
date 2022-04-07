@@ -12,7 +12,7 @@ cd dolidev
 
 ./dolidev up --version=15.0 --seed # Spawn a Dolibarr instance with optional given version, and optionally seed the database
 ./dolidev down # Stop the Dolibarr instance
-./dolidev rm # Remove the Dolibarr instance (wipe files on disk)
+./dolidev down --rm # Remove the Dolibarr instance (wipe files on disk)
 ```
 
 ### On MacOs
