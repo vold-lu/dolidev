@@ -17,11 +17,12 @@ cd dolidev
 
 ### On MacOs
 
-Since, for obscure reason, Apple has preferred using the BSD getopt instead of the GNU one, the argument parsing is failing.
+Since Apple is BSD based some things are failing.
 
-Therefore MacOs users will need to install gnu-getopt using brew and then change the .env to point to the gnu-getopt location:
+Therefore MacOs users will need to install gnu-{getopt,sed} using brew and then change the .env to point to the location:
 
 ```bash
-brew install gnu-getopt
+brew install gnu-getopt gnu-sed
 echo "GETOPT_CMD=$(brew --prefix gnu-getopt)/bin/getopt" >> .env
+echo "SED_CMD=gsed" >> .env
 ```
