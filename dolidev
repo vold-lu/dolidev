@@ -112,6 +112,10 @@ seed_dolibarr() {
   docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
 }
 
+run_compose() {
+  (cd docker && docker-compose "$@")
+}
+
 ###
 ### Main ###
 ###
@@ -125,4 +129,6 @@ if [ "$1" == "up" ]; then
   up_dolidev "$@"
 elif [ "$1" == "down" ]; then
   down_dolidev "$@"
+else
+  run_compose "$@"
 fi
