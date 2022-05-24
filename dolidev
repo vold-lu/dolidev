@@ -105,6 +105,10 @@ configure_dolibarr() {
 }
 
 seed_dolibarr() {
+  # Recreate the database first
+  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS $DB_DATABASE"
+  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_DATABASE"
+
   # Run the seeders
   docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./dolibarr/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
 
