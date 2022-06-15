@@ -40,6 +40,7 @@ up_dolidev() {
   echo ""
   echo "The Dolibarr is available at http://localhost"
   echo "The PHPMyAdmin is available at http://localhost:8080"
+  echo "The MailHog web interface is available at http://localhost:8025"
   echo ""
   echo "You can login on Dolibarr using admin:password credentials"
   echo "You can login on PHPMyAdmin using $DB_USERNAME:$DB_PASSWORD credentials"
@@ -111,6 +112,7 @@ seed_dolibarr() {
 
   # Run the seeders
   docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./dolibarr/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
+  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./docker/seed.sql"
 
   # Set password as 'password' for all users
   docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"

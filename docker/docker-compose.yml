@@ -50,6 +50,14 @@ services:
     networks:
       - dolibarr
 
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: dolidev_mailhog
+    ports:
+      - '${FORWARD_MAILHOG_PORT:-8025}:8025'
+    networks:
+      - dolibarr
+
 networks:
   dolibarr:
     driver: bridge
