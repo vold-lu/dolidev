@@ -5,11 +5,6 @@ LABEL maintainer="Aloïs Micard <a.micard@vold.lu>"
 # Setup user for PHP-FPM with ID 1000
 RUN adduser --uid 1000 --disabled-password --no-create-home dolibarr
 
-# Tweak PHP-FPM config
-RUN sed -i 's/user = www-data/user = dolibarr/g' /usr/local/etc/php-fpm.d/www.conf
-
-RUN echo 'php_admin_flag[log_errors]=On' >> /usr/local/etc/php-fpm.d/www.conf
-
 RUN apk add --no-cache \
       freetype \
       libjpeg-turbo \
@@ -30,3 +25,5 @@ RUN apk add --no-cache \
       libjpeg-turbo-dev \
       libpng-dev \
     && rm -rf /tmp/*
+
+COPY www.conf /usr/local/etc/php-fpm.d/www.conf
