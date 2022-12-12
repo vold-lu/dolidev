@@ -98,7 +98,7 @@ configure_dolibarr() {
   cp dolibarr/htdocs/conf/conf.php.example dolibarr/htdocs/conf/conf.php
 
   $SED_CMD -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html'/g" dolibarr/htdocs/conf/conf.php
+  $SED_CMD -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html\/htdocs'/g" dolibarr/htdocs/conf/conf.php
   $SED_CMD -i "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" dolibarr/htdocs/conf/conf.php
   $SED_CMD -i "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" dolibarr/htdocs/conf/conf.php
   $SED_CMD -i "s/dolibarr_main_db_name=''/dolibarr_main_db_name='$DB_DATABASE'/g" dolibarr/htdocs/conf/conf.php

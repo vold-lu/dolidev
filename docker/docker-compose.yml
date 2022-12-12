@@ -25,7 +25,7 @@ services:
     build: php
     container_name: dolidev_php
     volumes:
-      - ../dolibarr/htdocs:/var/www/html:rw
+      - ../dolibarr:/var/www/html:rw
       - ../dolibarr/documents:/var/documents:rw
     networks:
       - dolibarr
@@ -36,7 +36,7 @@ services:
     ports:
       - '${FORWARD_WEB_PORT:-80}:80'
     volumes:
-      - ../dolibarr/htdocs:/var/www/html:rw
+      - ../dolibarr:/var/www/html:rw
     networks:
       - dolibarr
 
