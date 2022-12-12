@@ -5,10 +5,11 @@
 set -euo pipefail
 
 up_dolidev() {
-  OPTS=$($GETOPT_CMD -o v:: --long version::,seed -- "$@")
+  OPTS=$($GETOPT_CMD -o v:: --long version::,seed,pull -- "$@")
 
   local DOLIBARR_VERSION="14.0"
   local SEED=0
+  local PULL=0
 
   eval set -- "$OPTS"
 
@@ -20,12 +21,13 @@ up_dolidev() {
           *) DOLIBARR_VERSION="$2" ; shift 2 ;;
         esac ;;
       --seed) SEED=1 ; shift ;;
+      --pull) PULL=1 ; shift ;;
       --) shift ; break ;;
       *) echo "Internal error!" ; exit 1 ;;
     esac
   done
 
-  install_dolibarr "$DOLIBARR_VERSION"
+  install_dolibarr "$DOLIBARR_VERSION" "$PULL"
   configure_dolibarr
 
   echo "Starting the Dolibarr instance."
@@ -78,7 +80,9 @@ install_dolibarr() {
     echo "Updating existing Dolibarr instance to v$1"
     (
       cd dolibarr
-      git pull --rebase --autostash > /dev/null 2>&1
+      if [ "$2" -eq 1 ]; then
+        git pull --rebase --autostash > /dev/null 2>&1
+      fi
       git checkout "$1" > /dev/null 2>&1
     )
   else
