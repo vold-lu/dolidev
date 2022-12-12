@@ -14,6 +14,7 @@ RUN apk add --no-cache \
       libpng-dev \
       icu-dev \
       libzip-dev \
+      zip \
     && docker-php-ext-configure gd \
       --with-freetype=/usr/include/ \
       --with-jpeg=/usr/include/ \
