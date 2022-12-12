@@ -122,6 +122,10 @@ run_compose() {
   (cd docker && docker-compose "$@")
 }
 
+run_shell() {
+  (cd docker && docker-compose exec php sh)
+}
+
 ###
 ### Main ###
 ###
@@ -135,6 +139,8 @@ if [ "$1" == "up" ]; then
   up_dolidev "$@"
 elif [ "$1" == "down" ]; then
   down_dolidev "$@"
+elif [ "$1" == "sh" ]; then
+  run_shell
 else
   run_compose "$@"
 fi
