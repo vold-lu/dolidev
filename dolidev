@@ -7,7 +7,7 @@ set -euo pipefail
 up_dolidev() {
   OPTS=$($GETOPT_CMD -o v:: --long version::,seed,pull -- "$@")
 
-  local DOLIBARR_VERSION="14.0"
+  local DOLIBARR_VERSION="16.0"
   local SEED=0
   local PULL=0
 
