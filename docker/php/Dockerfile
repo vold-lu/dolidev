@@ -1,4 +1,4 @@
-FROM php:${PHP_VERSION:-7.4-fpm-alpine}
+FROM php:${PHP_VERSION:-7.4-fpm-alpine3.15}
 
 LABEL maintainer="Aloïs Micard <a.micard@vold.lu>"
 
@@ -15,12 +15,14 @@ RUN apk add --no-cache \
       icu-dev \
       libzip-dev \
       zip \
+      $PHPIZE_DEPS \
+    && pecl install xdebug-3.1.0 \
     && docker-php-ext-configure gd \
       --with-freetype=/usr/include/ \
       --with-jpeg=/usr/include/ \
     && docker-php-ext-configure intl \
     && docker-php-ext-install -j$(nproc) gd calendar intl zip mysqli pdo_mysql \
-    && docker-php-ext-enable gd calendar intl zip \
+    && docker-php-ext-enable gd calendar intl zip xdebug\
     && apk del --no-cache \
       freetype-dev \
       libjpeg-turbo-dev \
