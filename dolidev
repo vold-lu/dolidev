@@ -5,9 +5,8 @@
 set -euo pipefail
 
 up_dolidev() {
-  OPTS=$($GETOPT_CMD -o v:: --long version::,seed,pull -- "$@")
+  OPTS=$($GETOPT_CMD --long seed,pull -- "$@")
 
-  local DOLIBARR_VERSION="16.0"
   local SEED=0
   local PULL=0
 
@@ -15,11 +14,6 @@ up_dolidev() {
 
   while true ; do
     case "$1" in
-      -v|--version)
-        case "$2" in
-          "") shift 2 ;;
-          *) DOLIBARR_VERSION="$2" ; shift 2 ;;
-        esac ;;
       --seed) SEED=1 ; shift ;;
       --pull) PULL=1 ; shift ;;
       --) shift ; break ;;
@@ -36,7 +30,11 @@ up_dolidev() {
   if [[ "$SEED" -eq 1 ]]; then
     echo "Seeding the database."
     sleep 7
-    seed_dolibarr "$DOLIBARR_VERSION"
+
+    # Clean any suffix from dolibarr version to keep only upstream versioning
+    CLEAN_DOLIBARR_VERSION=$(echo "$DOLIBARR_VERSION" | cut -d'_' -f1)
+
+    seed_dolibarr "$CLEAN_DOLIBARR_VERSION"
   fi
 
   echo ""
@@ -86,8 +84,8 @@ install_dolibarr() {
       git checkout "$1" > /dev/null 2>&1
     )
   else
-    echo "Installing Dolibarr v$1 from https://github.com/Dolibarr/dolibarr.git into ./dolibarr"
-    git clone -b "$1" https://github.com/Dolibarr/dolibarr.git dolibarr > /dev/null 2>&1
+    echo "Installing Dolibarr v$1 from $DOLIBARR_URL into ./dolibarr"
+    git clone -b "$1" "$DOLIBARR_URL" dolibarr > /dev/null 2>&1
   fi
 
   # Create documents folder if missing
@@ -138,6 +136,8 @@ source .env
 
 GETOPT_CMD="${GETOPT_CMD:-getopt}"
 SED_CMD="${SED_CMD:-sed}"
+DOLIBARR_URL="${DOLIBARR_URL:-https://github.com/Dolibarr/dolibarr}"
+DOLIBARR_VERSION="${DOLIBARR_VERSION:-17.0}"
 
 if [ "$1" == "up" ]; then
   up_dolidev "$@"
