@@ -3,7 +3,6 @@ version: '3'
 services:
   db:
     image: 'mariadb:${MARIADB_VERSION:-10.7.3-focal}'
-    container_name: dolidev_db
     ports:
       - '${FORWARD_DB_PORT:-3306}:3306'
     environment:
@@ -14,8 +13,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     volumes:
       - db:/var/lib/mysql
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - dolibarr
     healthcheck:
@@ -25,26 +24,23 @@ services:
 
   php:
     build: php
-    container_name: dolidev_php
     volumes:
-      - ../dolibarr:/var/www/html:rw
-      - ../dolibarr/documents:/var/documents:rw
+      - '../${DOLIBARR_FOLDER:-dolibarr}:/var/www/html:rw'
+      - '../${DOLIBARR_FOLDER:-dolibarr}/documents:/var/documents:rw'
     networks:
       - dolibarr
 
   web:
     build: nginx
-    container_name: dolidev_web
     ports:
       - '${FORWARD_WEB_PORT:-80}:80'
     volumes:
-      - ../dolibarr:/var/www/html:rw
+      - '../${DOLIBARR_FOLDER:-dolibarr}:/var/www/html:rw'
     networks:
       - dolibarr
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: dolidev_pma
     environment:
       PMA_HOST: db
     ports:
@@ -54,7 +50,6 @@ services:
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
-    container_name: dolidev_mailhog
     ports:
       - '${FORWARD_MAILHOG_PORT:-8025}:8025'
     networks:

@@ -25,7 +25,8 @@ up_dolidev() {
   configure_dolibarr
 
   echo "Starting the Dolibarr instance."
-  (source ./.env && cd docker && docker-compose up -d --build)
+  # shellcheck disable=SC1090
+  (source "./$ENV_FILE" && docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" up -d --build)
 
   if [[ "$SEED" -eq 1 ]]; then
     echo "Seeding the database."
@@ -63,10 +64,10 @@ down_dolidev() {
 
   if [ "$RM" -eq 0 ]; then
     echo "Stopping the Dolibarr instance."
-    (cd docker && docker-compose down)
+    docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
   else
     echo "Removing the Dolibarr instance."
-    (cd docker && docker-compose down)
+    docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
 
     echo "Wipping files on disk."
     rm -rf dolibarr
@@ -74,18 +75,18 @@ down_dolidev() {
 }
 
 install_dolibarr() {
-  if [ -d dolibarr ]; then
+  if [ -d "$DOLIBARR_FOLDER" ]; then
     echo "Updating existing Dolibarr instance to v$1"
     (
-      cd dolibarr
+      cd "$DOLIBARR_FOLDER"
       if [ "$2" -eq 1 ]; then
         git pull --rebase --autostash
       fi
       git checkout "$1"
     )
   else
-    echo "Installing Dolibarr v$1 from $DOLIBARR_URL into ./dolibarr"
-    git clone -b "$1" "$DOLIBARR_URL" dolibarr
+    echo "Installing Dolibarr v$1 from $DOLIBARR_URL into ./$DOLIBARR_FOLDER"
+    git clone -b "$1" "$DOLIBARR_URL" "$DOLIBARR_FOLDER"
   fi
 
   # Create documents folder if missing
@@ -93,46 +94,57 @@ install_dolibarr() {
 }
 
 configure_dolibarr() {
-  cp dolibarr/htdocs/conf/conf.php.example dolibarr/htdocs/conf/conf.php
+  cp "$DOLIBARR_FOLDER/htdocs/conf/conf.php.example" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
 
-  $SED_CMD -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html\/htdocs'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_db_name=''/dolibarr_main_db_name='$DB_DATABASE'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_db_user=''/dolibarr_main_db_user='$DB_USERNAME'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_db_pass=''/dolibarr_main_db_pass='$DB_PASSWORD'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" dolibarr/htdocs/conf/conf.php
-  $SED_CMD -i "s#//\$dolibarr_main_url_root_alt=#\$dolibarr_main_url_root_alt=#g" dolibarr/htdocs/conf/conf.php
+  $SED_CMD -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html\/htdocs'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_db_name=''/dolibarr_main_db_name='$DB_DATABASE'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_db_user=''/dolibarr_main_db_user='$DB_USERNAME'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_db_pass=''/dolibarr_main_db_pass='$DB_PASSWORD'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_db_type=''/dolibarr_main_db_type='mysqli'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s#//\$dolibarr_main_url_root_alt=#\$dolibarr_main_url_root_alt=#g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
 }
 
 seed_dolibarr() {
   # Recreate the database first
-  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS $DB_DATABASE"
-  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_DATABASE"
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec --interactive db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS $DB_DATABASE"
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec --interactive db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_DATABASE"
 
   # Run the seeders
-  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./dolibarr/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
-  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./docker/seed.sql"
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./$DOLIBARR_FOLDER/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./docker/seed.sql"
 
   # Set password as 'password' for all users
-  docker exec --interactive dolidev_db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
 }
 
 run_compose() {
-  (cd docker && docker-compose "$@")
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" "$@"
 }
 
 run_shell() {
-  (cd docker && docker-compose exec php sh)
+  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec php sh
 }
 
 ###
 ### Main ###
 ###
 
-source .env
+# Determinate which env file to use
+if [ -z ${2+x} ]; then
+  ENV_FILE=".env"
+  DOLIBARR_FOLDER="dolibarr"
+else
+  ENV_FILE=".env.$2"
+  DOLIBARR_FOLDER="$(echo "$2" | cut -d'.' -f3)"
+fi
+export DOLIBARR_FOLDER
+
+# shellcheck disable=SC1090
+source "$ENV_FILE"
 
 GETOPT_CMD="${GETOPT_CMD:-getopt}"
 SED_CMD="${SED_CMD:-sed}"
