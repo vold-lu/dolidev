@@ -25,7 +25,7 @@ up_dolidev() {
   configure_dolibarr
 
   echo "Starting the Dolibarr instance."
-  (source ./.env && cd docker && docker-compose up -d --build > /dev/null 2>&1)
+  (source ./.env && cd docker && docker-compose up -d --build)
 
   if [[ "$SEED" -eq 1 ]]; then
     echo "Seeding the database."
@@ -63,10 +63,10 @@ down_dolidev() {
 
   if [ "$RM" -eq 0 ]; then
     echo "Stopping the Dolibarr instance."
-    (cd docker && docker-compose down > /dev/null 2>&1)
+    (cd docker && docker-compose down)
   else
     echo "Removing the Dolibarr instance."
-    (cd docker && docker-compose down -v > /dev/null 2>&1)
+    (cd docker && docker-compose down)
 
     echo "Wipping files on disk."
     rm -rf dolibarr
@@ -79,13 +79,13 @@ install_dolibarr() {
     (
       cd dolibarr
       if [ "$2" -eq 1 ]; then
-        git pull --rebase --autostash > /dev/null 2>&1
+        git pull --rebase --autostash
       fi
-      git checkout "$1" > /dev/null 2>&1
+      git checkout "$1"
     )
   else
     echo "Installing Dolibarr v$1 from $DOLIBARR_URL into ./dolibarr"
-    git clone -b "$1" "$DOLIBARR_URL" dolibarr > /dev/null 2>&1
+    git clone -b "$1" "$DOLIBARR_URL" dolibarr
   fi
 
   # Create documents folder if missing
