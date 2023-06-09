@@ -27,6 +27,8 @@ services:
     volumes:
       - '../${DOLIBARR_FOLDER:-dolibarr}:/var/www/html:rw'
       - '../${DOLIBARR_FOLDER:-dolibarr}/documents:/var/documents:rw'
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - dolibarr
 
