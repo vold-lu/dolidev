@@ -14,6 +14,8 @@ RUN apk add --no-cache \
       libpng-dev \
       icu-dev \
       libzip-dev \
+      imap-dev \
+      openssl-dev \
       zip \
       $PHPIZE_DEPS \
     && pecl install xdebug-3.1.0 \
@@ -21,7 +23,8 @@ RUN apk add --no-cache \
       --with-freetype=/usr/include/ \
       --with-jpeg=/usr/include/ \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install -j$(nproc) gd calendar intl zip mysqli pdo_mysql \
+    && docker-php-ext-configure imap --with-imap-ssl \
+    && docker-php-ext-install -j$(nproc) gd calendar intl zip mysqli pdo_mysql imap \
     && docker-php-ext-enable gd calendar intl zip xdebug\
     && apk del --no-cache \
       freetype-dev \
