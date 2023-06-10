@@ -25,7 +25,7 @@ up_dolidev() {
   configure_dolibarr
 
   echo "Starting the Dolibarr instance."
-  docker-compose --env-file "./$ENV_FILE" --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" up -d --build
+  $COMPOSE_CMD --env-file "./$ENV_FILE" --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" up -d --build
 
   if [[ "$SEED" -eq 1 ]]; then
     echo "Seeding the database."
@@ -63,10 +63,10 @@ down_dolidev() {
 
   if [ "$RM" -eq 0 ]; then
     echo "Stopping the Dolibarr instance."
-    docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
+    $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
   else
     echo "Removing the Dolibarr instance."
-    docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
+    $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
 
     echo "Wipping files on disk."
     rm -rf dolibarr
@@ -109,23 +109,23 @@ configure_dolibarr() {
 
 seed_dolibarr() {
   # Recreate the database first
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec --interactive db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS $DB_DATABASE"
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec --interactive db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_DATABASE"
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec --interactive db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS $DB_DATABASE"
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec --interactive db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "CREATE DATABASE $DB_DATABASE"
 
   # Run the seeders
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./$DOLIBARR_FOLDER/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./docker/seed.sql"
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./$DOLIBARR_FOLDER/dev/initdemo/mysqldump_dolibarr_$1.0.sql"
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" <"./docker/seed.sql"
 
   # Set password as 'password' for all users
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec -T db mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" --execute "UPDATE llx_user SET pass = \"password\" WHERE 1"
 }
 
 run_compose() {
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" "$@"
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" "$@"
 }
 
 run_shell() {
-  docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec php sh
+  $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" exec php sh
 }
 
 ###
@@ -149,6 +149,7 @@ GETOPT_CMD="${GETOPT_CMD:-getopt}"
 SED_CMD="${SED_CMD:-sed}"
 DOLIBARR_URL="${DOLIBARR_URL:-https://github.com/Dolibarr/dolibarr}"
 DOLIBARR_VERSION="${DOLIBARR_VERSION:-17.0}"
+COMPOSE_CMD="${COMPOSE_CMD:-docker-compose}"
 
 if [ "$1" == "up" ]; then
   up_dolidev "$@"
