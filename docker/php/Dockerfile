@@ -2,6 +2,8 @@ ARG PHP_VERSION
 
 FROM php:${PHP_VERSION}
 
+ARG XDEBUG_VERSION
+
 LABEL maintainer="Aloïs Micard <a.micard@vold.lu>"
 
 # Setup user for PHP-FPM with ID 1000
@@ -18,16 +20,17 @@ RUN apk add --no-cache \
       libzip-dev \
       imap-dev \
       openssl-dev \
+      linux-headers \
       zip \
       $PHPIZE_DEPS \
-    && pecl install xdebug-3.1.0 \
+    && pecl install "xdebug-${XDEBUG_VERSION}" \
     && docker-php-ext-configure gd \
       --with-freetype=/usr/include/ \
       --with-jpeg=/usr/include/ \
     && docker-php-ext-configure intl \
     && docker-php-ext-configure imap --with-imap-ssl \
     && docker-php-ext-install -j$(nproc) gd calendar intl zip mysqli pdo_mysql imap \
-    && docker-php-ext-enable gd calendar intl zip xdebug\
+    && docker-php-ext-enable gd calendar intl zip xdebug \
     && apk del --no-cache \
       freetype-dev \
       libjpeg-turbo-dev \
