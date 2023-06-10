@@ -1,4 +1,6 @@
-FROM nginx:${NGINX_VERSION:-1.18-alpine}
+ARG NGINX_VERSION
+
+FROM nginx:${NGINX_VERSION}
 
 LABEL maintainer="Aloïs Micard <a.micard@vold.lu>"
 

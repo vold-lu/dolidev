@@ -23,7 +23,10 @@ services:
       timeout: 5s
 
   php:
-    build: php
+    build:
+      context: php
+      args:
+        PHP_VERSION: ${PHP_VERSION:-7.4-fpm-alpine3.15}
     volumes:
       - '../${DOLIBARR_FOLDER:-dolibarr}:/var/www/html:rw'
       - '../${DOLIBARR_FOLDER:-dolibarr}/documents:/var/documents:rw'
@@ -33,7 +36,10 @@ services:
       - dolibarr
 
   web:
-    build: nginx
+    build:
+      context: nginx
+      args:
+        NGINX_VERSION: ${NGINX_VERSION:-1.18-alpine}
     ports:
       - '${FORWARD_WEB_PORT:-80}:80'
     volumes:

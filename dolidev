@@ -25,8 +25,7 @@ up_dolidev() {
   configure_dolibarr
 
   echo "Starting the Dolibarr instance."
-  # shellcheck disable=SC1090
-  (source "./$ENV_FILE" && docker-compose --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" up -d --build)
+  docker-compose --env-file "./$ENV_FILE" --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" up -d --build
 
   if [[ "$SEED" -eq 1 ]]; then
     echo "Seeding the database."
