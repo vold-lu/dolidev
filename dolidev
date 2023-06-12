@@ -38,9 +38,9 @@ up_dolidev() {
   fi
 
   echo ""
-  echo "The Dolibarr is available at http://localhost"
-  echo "The PHPMyAdmin is available at http://localhost:8080"
-  echo "The MailHog web interface is available at http://localhost:8025"
+  echo "The Dolibarr is available at http://localhost:${FORWARD_WEB_PORT:-80}"
+  echo "The PHPMyAdmin is available at http://localhost:${FORWARD_PMA_PORT:-8080}"
+  echo "The MailHog web interface is available at http://localhost:${FORWARD_MAILHOG_PORT:-8025}"
   echo ""
   echo "You can login on Dolibarr using admin:password credentials"
   echo "You can login on PHPMyAdmin using $DB_USERNAME:$DB_PASSWORD credentials"
