@@ -89,7 +89,7 @@ install_dolibarr() {
   fi
 
   # Create documents folder if missing
-  mkdir -p dolibarr/documents
+  mkdir -p "$DOLIBARR_FOLDER/documents"
 }
 
 configure_dolibarr() {
