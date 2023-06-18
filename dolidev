@@ -87,6 +87,9 @@ install_dolibarr() {
     echo "Installing Dolibarr v$1 from $DOLIBARR_URL into ./$DOLIBARR_FOLDER"
     git clone -b "$1" "$DOLIBARR_URL" "$DOLIBARR_FOLDER"
   fi
+
+  # Create documents folder if missing
+  mkdir -p "$DOLIBARR_FOLDER/documents"
 }
 
 configure_dolibarr() {
