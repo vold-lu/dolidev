@@ -6,7 +6,7 @@ services:
     ports:
       - '${FORWARD_DB_PORT:-3306}:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-root}'
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD:-root}'
       MYSQL_DATABASE: '${DB_DATABASE:-dolibarr}'
       MYSQL_USER: '${DB_USERNAME:-dolibarr}'
       MYSQL_PASSWORD: '${DB_PASSWORD:-dolibarr}'
