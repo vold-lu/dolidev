@@ -11,7 +11,7 @@ services:
       MYSQL_USER: '${DB_USERNAME:-dolibarr}'
       MYSQL_PASSWORD: '${DB_PASSWORD:-dolibarr}'
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
-      TZ: '${TZ:-dolibarr}'
+      TZ: '${TZ:-Europe/Paris}'
     volumes:
       - db:/var/lib/mysql
       - /etc/timezone:/etc/timezone:ro
