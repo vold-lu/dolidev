@@ -95,7 +95,7 @@ install_dolibarr() {
 configure_dolibarr() {
   cp "$DOLIBARR_FOLDER/htdocs/conf/conf.php.example" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
 
-  $SED_CMD -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/dolibarr.local'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
+  $SED_CMD -i "s/dolibarr_main_url_root=''/dolibarr_main_url_root='http:\/\/localhost'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
   $SED_CMD -i "s/dolibarr_main_document_root=''/dolibarr_main_document_root='\/var\/www\/html\/htdocs'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
   $SED_CMD -i "s/dolibarr_main_data_root=''/dolibarr_main_data_root='\/var\/documents'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
   $SED_CMD -i "s/dolibarr_main_db_host=''/dolibarr_main_db_host='db'/g" "$DOLIBARR_FOLDER/htdocs/conf/conf.php"
