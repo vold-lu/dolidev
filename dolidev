@@ -66,7 +66,7 @@ down_dolidev() {
     $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
   else
     echo "Removing the Dolibarr instance."
-    $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down
+    $COMPOSE_CMD --project-directory docker -p "dolidev_$DOLIBARR_FOLDER" down -v
 
     echo "Wipping files on disk."
     rm -rf dolibarr
